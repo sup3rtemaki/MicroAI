@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1603409637 source:c:\users\dinopc\desktop\teste_adaline\main.c
+1603497656 source:c:\users\dinopc\desktop\teste_adaline\main.c
 	<stdio.h>
 	<stdlib.h>
 	<time.h>

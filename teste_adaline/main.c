@@ -4,32 +4,36 @@
 #include <stdlib.h>
 #include <math.h>
 
-int main()
-{
-    int amostras = 21; // 3 TIPOS DE CADA LETRA, ATÉ O G
-    int entradas = 64; // imagens 8x8, vetor = 64
-    int numclasses = 7; // 7 LETRAS, A-G
-    int targets = 21;
-    float entrada[amostras][entradas]; // MATRIZ DE AMOSTRAS
-    float target[numclasses][targets]; //MATRIZ TARGET
-    float yin[] = {0,0,0,0,0,0,0}; //numclasses - y inicial
-    float y[] = {0,0,0,0,0,0,0}; //numclasses - saida liquida
-    float erro = 10; // ERRO QUADRATICO TOTAL
-    int ciclo = 0;
-    float w[entradas][numclasses];
-    float wanterior[entradas][numclasses];
-    float w0[numclasses];
-    float w0anterior[numclasses];
-    float xaux[entradas];
-    float entrada_teste[entradas];
-    float soma;
-    float limiar = 0.0;
-    float alfa = 0.01;
-    float errotolerado = 0.001;
-    int letra = 0;
+#define amostras 21
+#define entradas 64
+#define numclasses 7
+#define targets 21
 
-    //float vetor1[100];
-    //float vetor2[100];
+/*int amostras = 21; // 3 TIPOS DE CADA LETRA, ATÉ O G
+int entradas = 64; // imagens 8x8, vetor = 64
+int numclasses = 7; // 7 LETRAS, A-G
+int targets = 21;*/
+float entrada[amostras][entradas]; // MATRIZ DE AMOSTRAS
+float target[numclasses][targets]; //MATRIZ TARGET
+float yin[] = {0,0,0,0,0,0,0}; //numclasses - y inicial
+float y[] = {0,0,0,0,0,0,0}; //numclasses - saida liquida
+float erro = 10; // ERRO QUADRATICO TOTAL
+int ciclo = 0;
+float w[entradas][numclasses];
+float wanterior[entradas][numclasses];
+float w0[numclasses];
+float w0anterior[numclasses];
+float xaux[entradas];
+float entrada_teste[entradas];
+float soma;
+float limiar = 0.0;
+float alfa = 0.01;
+float errotolerado = 0.001;
+int letra = 0;
+
+/*-------------------------------------------------------------------*/
+void inicializar_variaveis(void){
+
     int lin, col;
     lin = col = 0;
 
@@ -240,13 +244,16 @@ int main()
             w[lin][col] = w[lin][col]/100;
         }
     }
+}
 
-    /*----------------------------------------*/
+/*-------------------------------------------------------------------*/
+void treinar_rede(void){
+
     while (erro > errotolerado){
         ciclo++;
         erro = 0;
         for(int i = 0; i < amostras;i++){
-            for(col = 0; col < entradas; col++){
+            for(int col = 0; col < entradas; col++){
 
                 xaux[col] = entrada[i][col];
             }
@@ -313,6 +320,12 @@ int main()
         printf("Ciclo %d -> Erro: %.5f\n", ciclo, erro);
     }
 
+    getch();
+}
+
+/*-------------------------------------------------------------------*/
+void testar_rede(void){
+
     printf("\n====== TESTANDO A REDE ========\n");
 
     //TESTANDO A REDE
@@ -326,7 +339,7 @@ int main()
     //18, 19, 20 - letra G
     letra = 7;
 
-    for(col = 0; col < entradas; col++){
+    for(int col = 0; col < entradas; col++){
 
         entrada_teste[col] = entrada[letra][col];
     }
@@ -364,5 +377,37 @@ int main()
     if (y[5] == 1.0) { printf("Letra F reconhecida\n"); }
     if (y[6] == 1.0) { printf("Letra G reconhecida\n"); }
     printf("-=-=-=-=-=-=-=-=-=-=-=-\n");
-
+    getch();
 }
+
+/*-------------------------------------------------------------------*/
+int main()
+{
+    int opc = 0;
+
+    inicializar_variaveis();
+
+    while(opc != 3)
+    {
+        system("cls");
+        printf("\n\n ************ Programa Multilayer Adaline: Letras A a G ************");
+        printf("\n\n Digite 1 para treinar a rede");
+        printf("\n Digite 2 para operar");
+        printf("\n Digite 3 para Sair\n->");
+        scanf("%i",&opc);
+        if(opc == 1)
+        {
+            system("cls");
+            treinar_rede();
+        }
+        if(opc == 2)
+        {
+
+            system("cls");
+            testar_rede();
+        }
+    }
+
+    return(0);
+}
+
