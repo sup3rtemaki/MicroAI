@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1604021691 source:c:\users\dinopc\desktop\teste_mlperceptron\main.c
+	<stdio.h>
+	<stdlib.h>
+
