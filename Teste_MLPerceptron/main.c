@@ -6,7 +6,7 @@ int main()
     /* --- VARIAVEIS ---*/
     FILE *arq;
 
-    arq = fopen("0.txt", "r");
+    arq = fopen("amostras.txt", "r");
 
     if (arq == NULL)
     {
@@ -75,10 +75,12 @@ int main()
         }
     }
 
-    for(int j = 4; j < entradas; j++)
+    /* == TESTE ==*/
+    for(int j = 0; j < entradas; j++)
     {
-        printf(" %f", entrada[0][j]);
+        printf(" %f", entrada[49][j]);
     }
+    /*===========*/
 
 
     return 0;
