@@ -3,7 +3,7 @@
 #include <math.h>
 
 //Multiplica matriz
-void multiplica_matriz(int A[][], int B[][], int C[][], int N)
+void multiplica_matriz(float A[][], float B[][], float C[][], int N)
 {
     for (int i = 0; i < N; i++)
     {
@@ -59,7 +59,9 @@ int main()
     float w_novo[qtd_neuronios][tam_vetor_saida];
     float w0_novo[1][tam_vetor_saida];
     float z_inicial[1][qtd_neuronios];
+    float aux_z_inicial = 0;
     float z[1][qtd_neuronios];
+    float y_inicial[1][tam_vetor_saida];
     float deltinha_k[tam_vetor_saida][1];
     float delta_w0[tam_vetor_saida][1];
     float deltinha[1][qtd_neuronios];
@@ -192,7 +194,25 @@ int main()
         {
             for(int j = 0; j < qtd_neuronios; j++)
             {
-                z_inicial[0][j] =
+                for(int t = 0; t < entradas; t++)
+                {
+                    aux_z_inicial += (entrada[padrao][t] * v_anterior[j][padrao]);
+                }
+
+                z_inicial[0][j] = aux_z_inicial + v0_anterior[0][j];
+                z[0][j] = tanh(z_inicial[0][j]);
+                aux_z_inicial = 0;
+
+                for(int t = 0; t < tam_vetor_saida; t++)
+                {
+                    aux_z_inicial += (z[0][j] * w_anterior[j][t]);
+                }
+
+                for(int t = 0; t < tam_vetor_saida; t++)
+                {
+                    y_inicial[0][t] = aux_z_inicial + w0_anterior[0][t];
+                }
+
             }
         }
     }
