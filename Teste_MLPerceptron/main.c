@@ -3,7 +3,7 @@
 #include <math.h>
 
 //Multiplica matriz
-void multiplica_matriz(float A[][], float B[][], float C[][], int N)
+/*void multiplica_matriz(float A[][], float B[][], float C[][], int N)
 {
     for (int i = 0; i < N; i++)
     {
@@ -16,7 +16,7 @@ void multiplica_matriz(float A[][], float B[][], float C[][], int N)
             }
         }
     }
-}
+}*/
 
 int main()
 {
@@ -50,7 +50,7 @@ int main()
 
     float v_anterior[entradas][qtd_neuronios];
     float v0_anterior[1][qtd_neuronios];
-    float w_anterior[qtd_neuronios]{tam_vetor_saida];
+    float w_anterior[qtd_neuronios][tam_vetor_saida];
     float w0_anterior[1][tam_vetor_saida];
 
     /* --- MATRIZES DE ATUALIZACAO DE PESOS E VALORES DE SAIDA DA REDE ---*/
@@ -62,13 +62,15 @@ int main()
     float aux_z_inicial = 0;
     float z[1][qtd_neuronios];
     float y_inicial[1][tam_vetor_saida];
+    float y[1][tam_vetor_saida];
     float deltinha_k[tam_vetor_saida][1];
     float delta_w0[tam_vetor_saida][1];
     float deltinha[1][qtd_neuronios];
     float deltinha2[qtd_neuronios][1];
     float entrada_aux[1][entradas];
     float h[tam_vetor_saida][1];
-    float target[tam_vetor_saida][1];
+    float target_comp[tam_vetor_saida][1];
+    float soma;
     int ciclo = 0;
     float erro_total = 10000;
 
@@ -207,13 +209,22 @@ int main()
                 {
                     aux_z_inicial += (z[0][j] * w_anterior[j][t]);
                 }
-
-                for(int t = 0; t < tam_vetor_saida; t++)
-                {
-                    y_inicial[0][t] = aux_z_inicial + w0_anterior[0][t];
-                }
-
             }
+
+            for(int t = 0; t < tam_vetor_saida; t++)
+            {
+                y_inicial[0][t] = aux_z_inicial + w0_anterior[0][t];
+                y[0][t] = tanh(y_inicial[0][t]);
+                h[t][0] = y[0][t];
+                target_comp[t][0] = target[t][ordem];
+            }
+            aux_z_inicial = 0;
+
+            for(int t = 0; t < tam_vetor_saida; t++)
+            {
+                soma += ((target_comp[t][0] - h[t][0])^2);
+            }
+            erro_total += 0.5 * soma;
         }
     }
 
