@@ -3,7 +3,7 @@
 #include <math.h>
 
 //Multiplica matriz
-void multiplica_matriz(int r1, int c1, int c2, float A[r1][c1], float B[][c2], float C[r1][c1])
+void multiplica_matriz(int r1, int c1, int c2, float A[r1][c1], float B[][c2], float C[r1][c2])
 {
     /*for (int i = 0; i < N; i++)
     {
