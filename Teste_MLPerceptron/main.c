@@ -3,9 +3,9 @@
 #include <math.h>
 
 //Multiplica matriz
-void multiplica_matriz(int N, float A[][N], float B[N][1], float C[][N])
+void multiplica_matriz(int r1, int c1, int c2, float A[r1][c1], float B[][c2], float C[r1][c1])
 {
-    for (int i = 0; i < N; i++)
+    /*for (int i = 0; i < N; i++)
     {
         for (int j = 0; j < N; j++)
         {
@@ -15,7 +15,17 @@ void multiplica_matriz(int N, float A[][N], float B[N][1], float C[][N])
                 C[i][j] += A[i][k] * B[k][j];
             }
         }
-    }
+    }*/
+    for (int i = 0; i < r1; ++i) 
+    {
+      for (int j = 0; j < c2; ++j) 
+      {
+         for (int k = 0; k < c1; ++k) 
+         {
+            C[i][j] += A[i][k] * B[k][j];
+         }
+      }
+   }
 }
 
 int main()
@@ -27,7 +37,7 @@ int main()
 
     if (arq == NULL)
     {
-        printf("ERRO! O arquivo não foi aberto!\n");
+        printf("ERRO! O arquivo nÃ£o foi aberto!\n");
     }
     else
     {
