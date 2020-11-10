@@ -3,7 +3,7 @@
 #include <math.h>
 
 //Multiplica matriz
-/*void multiplica_matriz(float A[][], float B[][], float C[][], int N)
+void multiplica_matriz(int N, float A[][N], float B[N][1], float C[][N])
 {
     for (int i = 0; i < N; i++)
     {
@@ -16,7 +16,7 @@
             }
         }
     }
-}*/
+}
 
 int main()
 {
@@ -70,10 +70,9 @@ int main()
     float entrada_aux[1][entradas];
     float h[tam_vetor_saida][1];
     float target_comp[tam_vetor_saida][1];
-    float soma;
+    float soma = 0;
     int ciclo = 0;
     float erro_total = 10000;
-
 
     float aleatorio = 0.2;
 
@@ -123,7 +122,7 @@ int main()
         }
     }
 
-    /* == TESTE ==*/
+    /* == TESTE ==
     for(int j = 0; j < entradas; j++)
     {
         printf(" %f", entrada[49][j]);
@@ -216,7 +215,7 @@ int main()
                 y_inicial[0][t] = aux_z_inicial + w0_anterior[0][t];
                 y[0][t] = tanh(y_inicial[0][t]);
                 h[t][0] = y[0][t];
-                target_comp[t][0] = target[t][ordem];
+                target_comp[t][0] = target[t][ordem[padrao]];
             }
             aux_z_inicial = 0;
 
@@ -225,6 +224,14 @@ int main()
                 soma += ((target_comp[t][0] - h[t][0])^2);
             }
             erro_total += 0.5 * soma;
+            soma = 0;
+
+            /* --- OBTER MATRIZES PARA ATUALIZACAO DO PESOS ---*/
+            for(int t = 0; t < tam_vetor_saida; t++)
+            {
+                deltinha_k[t][0] = (target_comp[t][0] - h[t][0]) * ((1 + h[t][0]) * (1 - h[t][0]));
+                delta_w0
+            }
         }
     }
 
