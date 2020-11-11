@@ -270,7 +270,7 @@ int main()
 
             transpose(tam_vetor_saida, 1, **deltinha_k, **deltinha_k_transp);
             transpose(qtd_neuronios, tam_vetor_saida, **w_anterior, **w_anterior_transp);
-
+            multiplica_matriz()
         }
     }
 
