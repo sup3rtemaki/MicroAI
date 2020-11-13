@@ -5,7 +5,7 @@
 void multiplica_matriz(int r1, int c1, int c2, float A[r1][c1], float B[][c2], float C[r1][c2]);
 void transpose(int r1, int c1, float A[r1][c1]);
 
-//Multiplica matriz
+//Multiplica duas matrizes
 void multiplica_matriz(int r1, int c1, int c2, float A[r1][c1], float B[][c2], float C[r1][c2])
 {
     for (int i = 0; i < r1; ++i)
@@ -20,6 +20,7 @@ void multiplica_matriz(int r1, int c1, int c2, float A[r1][c1], float B[][c2], f
    }
 }
 
+//Transpoe matriz
 void transpose(int r1, int c1, float A[r1][c1], float B[c1][r1])
 {
     for (r1 = 0; r1 < m; r1++)
@@ -83,10 +84,13 @@ int main()
 
     float delta_w[tam_vetor_saida][tam_vetor_saida];
     float delta_w0[tam_vetor_saida][1];
+    float delta_v[qtd_neuronios][entradas];
+    float delta_v0[1][qtd_neuronios];
     float deltinha[1][qtd_neuronios];
     float deltinha2[qtd_neuronios][1];
     float deltinha_k[tam_vetor_saida][1];
     float deltinha_k_transp[1][tam_vetor_saida];
+    float deltinha_in[1][qtd_neuronios];
 
     float entrada_aux[1][entradas];
     float h[tam_vetor_saida][1];
@@ -270,7 +274,38 @@ int main()
 
             transpose(tam_vetor_saida, 1, **deltinha_k, **deltinha_k_transp);
             transpose(qtd_neuronios, tam_vetor_saida, **w_anterior, **w_anterior_transp);
-            multiplica_matriz()
+            multiplica_matriz(1, tam_vetor_saida, qtd_neuronios, **deltinha_k_transp, **w_anterior_transp, **deltinha_in);
+
+            for(int t = 0; t < qtd_neuronios; t++)
+            {
+                deltinha[0][t] = deltinha_in[0][t] * (1 + z[0][t]) * (1 - z[0][t]);
+            }
+
+            /*for(int m = 0; m < qtd_neuronios; m++)
+            {
+                deltinha2[m][0] = deltinha[0][m];
+            }*/
+            transpose(0, qtd_neuronios, **deltinha, **deltinha2);
+
+            for(int k = 0; k < entradas; k++)
+            {
+                entrada_aux[0][k] = entrada[padrao][k];
+            }
+
+            multiplica_matriz(qtd_neuronios, 1, entradas, **deltinha2, **entrada_aux, **delta_v);
+            for(int m = 0; m < qtd_neuronios; m++)
+            {
+                for(int n = 0; n < entradas; n++)
+                {
+                    delta_v[m][n] = delta_v[m][n] * alpha;
+                }
+            }
+
+            for(int u = 0; u < qtd_neuronios; u++)
+            {
+                delta_v0[0][u] = alpha * deltinha[0][u];
+            }
+
         }
     }
 
