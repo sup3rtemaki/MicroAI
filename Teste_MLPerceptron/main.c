@@ -82,10 +82,14 @@ int main()
     float y_inicial[1][tam_vetor_saida];
     float y[1][tam_vetor_saida];
 
-    float delta_w[tam_vetor_saida][tam_vetor_saida];
+    float delta_w[tam_vetor_saida][qtd_neuronios];
     float delta_w0[tam_vetor_saida][1];
+    float delta_w_transp[qtd_neuronios][tam_vetor_saida];
+    float delta_w0_transp[1][tam_vetor_saida];
     float delta_v[qtd_neuronios][entradas];
     float delta_v0[1][qtd_neuronios];
+    float delta_v_transp[entradas][qtd_neuronios];
+    float delta_v0_transp[qtd_neuronios][1];
     float deltinha[1][qtd_neuronios];
     float deltinha2[qtd_neuronios][1];
     float deltinha_k[tam_vetor_saida][1];
@@ -251,7 +255,7 @@ int main()
             erro_total += 0.5 * soma;
             soma = 0;
 
-            /* --- OBTER MATRIZES PARA ATUALIZACAO DO PESOS ---*/
+            /* --- OBTER MATRIZES PARA ATUALIZACAO DOS PESOS ---*/
             for(int t = 0; t < tam_vetor_saida; t++)
             {
                 deltinha_k[t][0] = (target_comp[t][0] - h[t][0]) * ((1 + h[t][0]) * (1 - h[t][0]));
@@ -306,6 +310,36 @@ int main()
                 delta_v0[0][u] = alpha * deltinha[0][u];
             }
 
+            /* --- REALIZANDO ATUALIZACAO DOS PESOS ---*/
+            transpose(qtd_neuronios, entradas, **delta_v, **delta_v_transp);
+            for(int m = 0; m < entradas; m++)
+            {
+                for(int n = 0; n < qtd_neuronios; n++)
+                {
+                    v_novo[m][n] = v_anterior[m][n] + delta_v_transp[m][n];
+                }
+            }
+
+            transpose(1, qtd_neuronios, **delta_v0, **delta_v0_transp);
+            for(int n = 0; n < qtd_neuronios; n++)
+            {
+                v0_novo[0][n] = v0_anterior[0][n] + delta_v0_transp[n][0];
+            }
+
+            transpose(tam_vetor_saida, qtd_neuronios, **delta_w, **delta_w_transp);
+            for(int m = 0; m < qtd_neuronios; m++)
+            {
+                for(int n = 0; n < tam_vetor_saida; n++)
+                {
+                    w_novo[m][n] = w_anterior[m][n] + delta_w_transp[m][n];
+                }
+            }
+
+            transpose(tam_vetor_saida, 1, **delta_w0, **delta_w0_transp);
+            for(int n = 0; n < tam_vetor_saida; n++)
+            {
+                w0_novo[0][n] = w0_anterior[0][n] + delta_v0_transp[0][n];
+            }
         }
     }
 
