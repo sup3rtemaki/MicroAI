@@ -3,7 +3,8 @@
 	<stdio.h>
 	<stdlib.h>
 
-1604451146 source:c:\users\dinopc\documents\github\microai\teste_mlperceptron\main.c
+1605459569 source:c:\users\dinopc\documents\github\microai\teste_mlperceptron\main.c
 	<stdio.h>
 	<stdlib.h>
+	<math.h>
 

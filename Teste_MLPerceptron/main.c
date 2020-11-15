@@ -3,7 +3,7 @@
 #include <math.h>
 
 void multiplica_matriz(int r1, int c1, int c2, float A[r1][c1], float B[][c2], float C[r1][c2]);
-void transpose(int r1, int c1, float A[r1][c1]);
+void transpose(int r1, int c1, float A[r1][c1], float B[c1][r1]);
 
 //Multiplica duas matrizes
 void multiplica_matriz(int r1, int c1, int c2, float A[r1][c1], float B[][c2], float C[r1][c2])
@@ -23,11 +23,11 @@ void multiplica_matriz(int r1, int c1, int c2, float A[r1][c1], float B[][c2], f
 //Transpoe matriz
 void transpose(int r1, int c1, float A[r1][c1], float B[c1][r1])
 {
-    for (r1 = 0; r1 < m; r1++)
+    for (int m = 0; m < r1; m++)
     {
-        for (c1 = 0; c1 < n; c1++)
+        for (int n = 0; n < c1; n++)
         {
-            B[c1][r1] = A[r1][c1];
+            B[n][m] = A[m][n];
         }
     }
 }
@@ -61,6 +61,9 @@ int main()
     float limiar = 0.0;
     float alfa = 0.005; //taxa aprendizagem
     float erro_tolerado = 0.5;
+
+    int ordem[amostras];
+    int cont = 0;
 
     float v_anterior[entradas][qtd_neuronios];
     float v0_anterior[1][qtd_neuronios];
@@ -97,6 +100,7 @@ int main()
     float deltinha_in[1][qtd_neuronios];
 
     float entrada_aux[1][entradas];
+    float entrada_aux_2[amostras][1];
     float h[tam_vetor_saida][1];
     float target_comp[tam_vetor_saida][1];
     float soma = 0;
@@ -108,6 +112,15 @@ int main()
     /* --- ARQUIVO DE AMOSTRAS DE TREINAMENTO ---*/
     float entrada[amostras][entradas];
     float target[qtd_digitos][tam_vetor_saida];
+
+    for(int m = 0; m < tam_vetor_saida; m++)
+    {
+        for(int n = 0; n < amostras_por_digito; n++)
+        {
+            ordem[cont] = m;
+            cont++;
+        }
+    }
 
     for(int i = 0; i < amostras; i++)
     {
@@ -220,19 +233,24 @@ int main()
     while(erro_tolerado < erro_total)
     {
         erro_total = 0;
+
         for(int padrao = 0; padrao < amostras; padrao++)
         {
             for(int j = 0; j < qtd_neuronios; j++)
             {
                 for(int t = 0; t < entradas; t++)
                 {
-                    aux_z_inicial += (entrada[padrao][t] * v_anterior[j][padrao]);
+                    aux_z_inicial += (entrada[padrao][t] * v_anterior[t][j]);
+                   // zin[0][j] = np.dot(x[padrao,:], vanterior[:, j]) + v0anterior[0][j];
                 }
 
                 z_inicial[0][j] = aux_z_inicial + v0_anterior[0][j];
                 z[0][j] = tanh(z_inicial[0][j]);
                 aux_z_inicial = 0;
+            }
 
+            for(int j = 0; j < qtd_neuronios; j++)
+            {
                 for(int t = 0; t < tam_vetor_saida; t++)
                 {
                     aux_z_inicial += (z[0][j] * w_anterior[j][t]);
@@ -250,7 +268,7 @@ int main()
 
             for(int t = 0; t < tam_vetor_saida; t++)
             {
-                soma += ((target_comp[t][0] - h[t][0])^2);
+                soma += pow((target_comp[t][0] - h[t][0]), 2.0);
             }
             erro_total += 0.5 * soma;
             soma = 0;
@@ -261,7 +279,7 @@ int main()
                 deltinha_k[t][0] = (target_comp[t][0] - h[t][0]) * ((1 + h[t][0]) * (1 - h[t][0]));
             }
 
-            multiplica_matriz(tam_vetor_saida, 1, qtd_neuronios, **deltinha_k, **z, **delta_w);
+            multiplica_matriz(tam_vetor_saida, 1, qtd_neuronios, deltinha_k, z, delta_w);
 
             for(int t = 0; t < tam_vetor_saida; t++)
             {
@@ -276,9 +294,9 @@ int main()
                 delta_w0[u][0] = alfa * deltinha_k[u][0];
             }
 
-            transpose(tam_vetor_saida, 1, **deltinha_k, **deltinha_k_transp);
-            transpose(qtd_neuronios, tam_vetor_saida, **w_anterior, **w_anterior_transp);
-            multiplica_matriz(1, tam_vetor_saida, qtd_neuronios, **deltinha_k_transp, **w_anterior_transp, **deltinha_in);
+            transpose(tam_vetor_saida, 1, deltinha_k, deltinha_k_transp);
+            transpose(qtd_neuronios, tam_vetor_saida, w_anterior, w_anterior_transp);
+            multiplica_matriz(1, tam_vetor_saida, qtd_neuronios, deltinha_k_transp, w_anterior_transp, deltinha_in);
 
             for(int t = 0; t < qtd_neuronios; t++)
             {
@@ -289,29 +307,29 @@ int main()
             {
                 deltinha2[m][0] = deltinha[0][m];
             }*/
-            transpose(0, qtd_neuronios, **deltinha, **deltinha2);
+            transpose(0, qtd_neuronios, deltinha, deltinha2);
 
             for(int k = 0; k < entradas; k++)
             {
                 entrada_aux[0][k] = entrada[padrao][k];
             }
 
-            multiplica_matriz(qtd_neuronios, 1, entradas, **deltinha2, **entrada_aux, **delta_v);
+            multiplica_matriz(qtd_neuronios, 1, entradas, deltinha2, entrada_aux, delta_v);
             for(int m = 0; m < qtd_neuronios; m++)
             {
                 for(int n = 0; n < entradas; n++)
                 {
-                    delta_v[m][n] = delta_v[m][n] * alpha;
+                    delta_v[m][n] = delta_v[m][n] * alfa;
                 }
             }
 
             for(int u = 0; u < qtd_neuronios; u++)
             {
-                delta_v0[0][u] = alpha * deltinha[0][u];
+                delta_v0[0][u] = alfa * deltinha[0][u];
             }
 
             /* --- REALIZANDO ATUALIZACAO DOS PESOS ---*/
-            transpose(qtd_neuronios, entradas, **delta_v, **delta_v_transp);
+            transpose(qtd_neuronios, entradas, delta_v, delta_v_transp);
             for(int m = 0; m < entradas; m++)
             {
                 for(int n = 0; n < qtd_neuronios; n++)
@@ -320,13 +338,13 @@ int main()
                 }
             }
 
-            transpose(1, qtd_neuronios, **delta_v0, **delta_v0_transp);
+            transpose(1, qtd_neuronios, delta_v0, delta_v0_transp);
             for(int n = 0; n < qtd_neuronios; n++)
             {
                 v0_novo[0][n] = v0_anterior[0][n] + delta_v0_transp[n][0];
             }
 
-            transpose(tam_vetor_saida, qtd_neuronios, **delta_w, **delta_w_transp);
+            transpose(tam_vetor_saida, qtd_neuronios, delta_w, delta_w_transp);
             for(int m = 0; m < qtd_neuronios; m++)
             {
                 for(int n = 0; n < tam_vetor_saida; n++)
@@ -335,12 +353,41 @@ int main()
                 }
             }
 
-            transpose(tam_vetor_saida, 1, **delta_w0, **delta_w0_transp);
+            transpose(tam_vetor_saida, 1, delta_w0, delta_w0_transp);
             for(int n = 0; n < tam_vetor_saida; n++)
             {
-                w0_novo[0][n] = w0_anterior[0][n] + delta_v0_transp[0][n];
+                w0_novo[0][n] = w0_anterior[0][n] + delta_w0_transp[0][n];
+            }
+
+            for(int m = 0; m < entradas; m++)
+            {
+                for(int n = 0; n < qtd_neuronios; n++)
+                {
+                    v_anterior[m][n] = v_novo[m][n];
+                }
+            }
+
+            for(int n = 0; n < qtd_neuronios; n++)
+            {
+                v0_anterior[0][n] = v0_novo[0][n];
+            }
+
+            for(int m = 0; m < qtd_neuronios; m++)
+            {
+                for(int n = 0; n < tam_vetor_saida; n++)
+                {
+                   w_anterior[m][n] = w_novo[m][n];
+                }
+            }
+
+            for(int n = 0; n < tam_vetor_saida; n++)
+            {
+               w0_anterior[0][n] = w0_novo[0][n];
             }
         }
+
+        ciclo++;
+        printf("\nCiclo: %d \tErro: %.2f", ciclo, erro_total);
     }
 
     return 0;
