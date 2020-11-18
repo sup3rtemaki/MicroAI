@@ -8,11 +8,11 @@ void transpose(int r1, int c1, float A[r1][c1], float B[c1][r1]);
 //Multiplica duas matrizes
 void multiplica_matriz(int r1, int c1, int c2, float A[r1][c1], float B[][c2], float C[r1][c2])
 {
-    for (int i = 0; i < r1; ++i)
+    for (int i = 0; i < r1; i++)
     {
-      for (int j = 0; j < c2; ++j)
+      for (int j = 0; j < c2; j++)
       {
-         for (int k = 0; k < c1; ++k)
+         for (int k = 0; k < c1; k++)
          {
             C[i][j] += A[i][k] * B[k][j];
          }
@@ -103,15 +103,20 @@ int main()
     float entrada_aux_2[amostras][1];
     float h[tam_vetor_saida][1];
     float target_comp[tam_vetor_saida][1];
-    float soma = 0;
+    float soma = 0.0;
     int ciclo = 0;
-    float erro_total = 10000;
+    float erro_total = 1000;
 
     float aleatorio = 0.2;
 
     /* --- ARQUIVO DE AMOSTRAS DE TREINAMENTO ---*/
     float entrada[amostras][entradas];
     float target[qtd_digitos][tam_vetor_saida];
+
+    for(int n = 0; n < amostras; n++)
+    {
+        ordem[n] = 0;
+    }
 
     for(int m = 0; m < tam_vetor_saida; m++)
     {
@@ -187,7 +192,7 @@ int main()
     }
 
     /* == TESTE ==*/
-    for(int i = 0; i < 10; i++)
+    /*for(int i = 0; i < 10; i++)
     {
         for(int j = 0; j < tam_vetor_saida; j++)
         {
@@ -195,7 +200,7 @@ int main()
         }
         printf("\n");
     }
-    printf("\n\n");
+    printf("\n\n");*;
 
     /* --- GERANDO PESOS SINAPTICOS ALEATORIAMENTE ---*/
     for(int i = 0; i < entradas; i++)
@@ -246,32 +251,37 @@ int main()
 
                 z_inicial[0][j] = aux_z_inicial + v0_anterior[0][j];
                 z[0][j] = tanh(z_inicial[0][j]);
-                aux_z_inicial = 0;
+                aux_z_inicial = 0.0;
             }
 
-            for(int j = 0; j < qtd_neuronios; j++)
+            //////////////////////////////////////////////////////////////////
+
+            multiplica_matriz(1, qtd_neuronios, tam_vetor_saida, z, w_anterior, y_inicial);
+
+            /*for(int j = 0; j < qtd_neuronios; j++)
             {
                 for(int t = 0; t < tam_vetor_saida; t++)
                 {
                     aux_z_inicial += (z[0][j] * w_anterior[j][t]);
                 }
-            }
+            }*/
 
             for(int t = 0; t < tam_vetor_saida; t++)
             {
-                y_inicial[0][t] = aux_z_inicial + w0_anterior[0][t];
+                y_inicial[0][t] += w0_anterior[0][t];
                 y[0][t] = tanh(y_inicial[0][t]);
                 h[t][0] = y[0][t];
                 target_comp[t][0] = target[t][ordem[padrao]];
             }
-            aux_z_inicial = 0;
+            //aux_z_inicial = 0;
+            ////////////////////////////////////////////////////////////////////
 
             for(int t = 0; t < tam_vetor_saida; t++)
             {
-                soma += pow((target_comp[t][0] - h[t][0]), 2.0);
+                soma += powf((target_comp[t][0] - h[t][0]), 2.0);
             }
             erro_total += 0.5 * soma;
-            soma = 0;
+            soma = 0.0;
 
             /* --- OBTER MATRIZES PARA ATUALIZACAO DOS PESOS ---*/
             for(int t = 0; t < tam_vetor_saida; t++)
@@ -303,11 +313,11 @@ int main()
                 deltinha[0][t] = deltinha_in[0][t] * (1 + z[0][t]) * (1 - z[0][t]);
             }
 
-            /*for(int m = 0; m < qtd_neuronios; m++)
+            for(int m = 0; m < qtd_neuronios; m++)
             {
                 deltinha2[m][0] = deltinha[0][m];
-            }*/
-            transpose(0, qtd_neuronios, deltinha, deltinha2);
+            }
+            //transpose(0, qtd_neuronios, deltinha, deltinha2);
 
             for(int k = 0; k < entradas; k++)
             {
