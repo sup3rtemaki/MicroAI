@@ -53,15 +53,15 @@ int main()
     int padrao = 0;
     int lin = 0;
     int col = 0;
-    int entradas = 255;
-    int qtd_neuronios = 20;
+    int entradas = 256;
+    int qtd_neuronios = 50;
     int amostras_por_digito = 5;
     int qtd_digitos = 10;
     int tam_vetor_saida = 10; //10 algarismos
     int amostras = amostras_por_digito * tam_vetor_saida;
     float limiar = 0.0;
-    float alfa = 0.005; //taxa aprendizagem
-    float erro_tolerado = 0.005;
+    float alfa = 0.01; //taxa aprendizagem
+    float erro_tolerado = 0.5;
 
     int ordem[amostras];
     int cont = 0;
@@ -107,8 +107,20 @@ int main()
     float soma = 0.0;
     int ciclo = 0;
     float erro_total = 1000;
+    int letra;
 
     float aleatorio = 0.2;
+
+    float deltaaux= 0;
+    float errotemporario=0;
+    float mediadeltaaux=0;
+    float mediadeltaauxant=0;
+    float alfaaux=0.1;
+    float theta=0.000000001;
+    float dec=0.7;
+    float uu=1.01;
+
+    float entrada_teste[entradas];
 
     for(int n = 0; n < amostras; n++)
     {
@@ -239,6 +251,7 @@ int main()
     while(erro_tolerado < erro_total)
     {
         erro_total = 0;
+        soma = 0.0;
 
         for(int t = 0; t < tam_vetor_saida; t++)
         {
@@ -250,21 +263,21 @@ int main()
             z_inicial[0][j] = 0.0;
         }
 
-        for(padrao; padrao < amostras; padrao++)
+        for(padrao = 0; padrao < amostras; padrao++)
         {
             for(int j = 0; j < qtd_neuronios; j++)
             {
                 for(int t = 0; t < entradas; t++)
                 {
-                    z_inicial[0][j] += (entrada[padrao][t] * v_anterior[t][j]);
+                    soma = soma + (entrada[padrao][t] * v_anterior[t][j]);
                     //aux_z_inicial += (entrada[padrao][t] * v_anterior[t][j]);
                    // zin[0][j] = np.dot(x[padrao,:], vanterior[:, j]) + v0anterior[0][j];
                 }
 
                 //z_inicial[0][j] = aux_z_inicial + v0_anterior[0][j];
-                z_inicial[0][j] += v0_anterior[0][j];
+                z_inicial[0][j] = soma + v0_anterior[0][j];
                 z[0][j] = tanh(z_inicial[0][j]);
-                aux_z_inicial = 0.0;
+                soma = 0.0;
             }
 
             //////////////////////////////////////////////////////////////////
@@ -275,20 +288,19 @@ int main()
             {
                 for(int j = 0; j < qtd_neuronios; j++)
                 {
-                    //aux_z_inicial += (z[0][t] * w_anterior[t][j]);
-                    y_inicial[0][t] += (z[0][j] * w_anterior[j][t]);
+                    soma = soma + (z[0][j] * w_anterior[j][t]);
+                    //y_inicial[0][t] += (z[0][j] * w_anterior[j][t]);
                 }
-                y_inicial[0][t] += w0_anterior[0][t];
+                y_inicial[0][t] = soma + w0_anterior[0][t];
                 y[0][t] = tanhf(y_inicial[0][t]);
                 h[t][0] = y[0][t];
-
+                soma = 0.0;
                 /*for(int t = 0; t < tam_vetor_saida; t++)
                 {
                     y_inicial[0][t] = w0_anterior[0][t] + aux_z_inicial;
                     y[0][t] = tanhf(y_inicial[0][t]);
                     h[t][0] = y[0][t];
                 }*/
-                //aux_z_inicial = 0.0;
             }
 
             for(int t = 0; t < tam_vetor_saida; t++)
@@ -300,16 +312,16 @@ int main()
 
             for(int t = 0; t < tam_vetor_saida; t++)
             {
-                //soma += (powf((target_comp[t][0] - h[t][0]), 2.0));
-                erro_total += 0.5 * (powf((target_comp[t][0] - h[t][0]), 2.0));
+                soma = soma + (powf((target_comp[t][0] - h[t][0]), 2.0));
+                //erro_total = erro_total + 0.5 * (powf((target_comp[t][0] - y[0][t]), 2.0));
             }
-            //erro_total += 0.5 * soma;
-            //soma = 0.0;
+            erro_total += 0.5 * soma;
+            soma = 0.0;
 
             /* --- OBTER MATRIZES PARA ATUALIZACAO DOS PESOS ---*/
             for(int t = 0; t < tam_vetor_saida; t++)
             {
-                deltinha_k[t][0] = (target_comp[t][0] - h[t][0]) * ((1 + h[t][0]) * (1 - h[t][0]));
+                deltinha_k[t][0] = (target_comp[t][0] - y[0][t]) * (1 + h[t][0]) * (1 - h[t][0]);
             }
 
             //multiplica_matriz(tam_vetor_saida, 1, qtd_neuronios, deltinha_k, z, delta_w);
@@ -331,14 +343,16 @@ int main()
             //transpose(tam_vetor_saida, 1, deltinha_k, deltinha_k_transp);
             //transpose(qtd_neuronios, tam_vetor_saida, w_anterior, w_anterior_transp);
             //multiplica_matriz(1, tam_vetor_saida, qtd_neuronios, deltinha_k_transp, w_anterior_transp, deltinha_in);
-
             for(int u = 0; u < qtd_neuronios; u++)
             {
                 //deltinha[0][u] = deltinha_in[0][u] * (1 + z[0][u]) * (1 - z[0][u]);
                 for(int t = 0; t < tam_vetor_saida; t++)
                 {
-                    deltinha_in[0][u] += (deltinha_k[t][0] * w_anterior[u][t]);
+                    //deltinha_in[0][u] += (deltinha_k[t][0] * w_anterior[u][t]);
+                    soma = soma + (deltinha_k[t][0] * w_anterior[u][t]);
                 }
+                deltinha_in[0][u] = soma;
+                soma = 0.0;
             }
 
             for(int u = 0; u < qtd_neuronios; u++)
@@ -435,8 +449,80 @@ int main()
         }
 
         ciclo++;
-        printf("\nCiclo: %d \tErro: %.2f", ciclo, erro_total);
+
+        // Alfa adaptativo.
+       /*if (ciclo>1)
+       {
+            deltaaux = (erro_total-errotemporario)/erro_total;
+            mediadeltaaux = alfaaux*deltaaux + (1-alfaaux)*mediadeltaauxant;
+            if (((deltaaux*mediadeltaauxant) < 0)&&(abs(mediadeltaauxant))>theta)
+            {
+                alfa = dec*alfa;
+            }
+
+            else
+            {
+                alfa = uu*alfa;
+            }
+
+            mediadeltaauxant = mediadeltaaux;
+            errotemporario = erro_total;
+       }*/
+
+
+        printf("\nCiclo: %d \tAlfa: %f \tErro: %.2f", ciclo, alfa, erro_total);
+        //printf("\ndeltaaux: %f \tmediadeltaauxant: %f", deltaaux, mediadeltaauxant);
+    }
+    printf("\n\n\n");
+
+    //teste manual
+    letra = 49;
+
+    for(int col = 0; col < entradas; col++)
+    {
+        entrada_teste[col] = entrada[letra][col];
     }
 
+    for (int m = 0; m < tam_vetor_saida; m++)
+    {
+        for (int n = 0; n < qtd_neuronios; n++)
+        {
+            for (int o = 0; o < entradas; o++)
+            {
+                soma += entrada_teste[o] * (v_anterior[o][n] + v0_anterior[0][n]);
+            }
+            z_inicial[0][n] = soma;
+            z[0][n] = tanh(z_inicial[0][n]);
+            soma = 0;
+        }
+
+        for (int n = 0; n < qtd_neuronios; n++)
+        {
+            soma += z[0][n] * w_anterior[n][m];
+        }
+        y_inicial[0][m] = soma + w0_anterior[0][m];
+        y[0][m] = tanh(y_inicial[0][m]);
+        soma = 0;
+
+        printf("[%.3f]", y[0][m]);
+    }
+
+    printf("\n\n\n");
+
+    for(int j = 0; j < tam_vetor_saida; j++)
+    {
+        if (y[0][j] >= limiar)
+        {
+            y[0][j] = 1.0;
+        }
+
+        else
+        {
+            y[0][j] = -1.0;
+        }
+
+        printf("[%.0f]", y[0][j]);
+    }
+///////////////////////////////////////////////////////////////////////////////////////////
     return 0;
 }
