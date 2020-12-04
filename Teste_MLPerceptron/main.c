@@ -476,7 +476,7 @@ int main()
     printf("\n\n\n");
 
     //teste manual
-    letra = 49;
+    letra = 21;
 
     for(int col = 0; col < entradas; col++)
     {
@@ -489,9 +489,9 @@ int main()
         {
             for (int o = 0; o < entradas; o++)
             {
-                soma += entrada_teste[o] * (v_anterior[o][n] + v0_anterior[0][n]);
+                soma += (entrada_teste[o] * v_anterior[o][n]);
             }
-            z_inicial[0][n] = soma;
+            z_inicial[0][n] = soma + v0_anterior[0][n];
             z[0][n] = tanh(z_inicial[0][n]);
             soma = 0;
         }
