@@ -2,40 +2,12 @@
 #include <stdlib.h>
 #include <math.h>
 
-/**<  void multiplica_matriz(int r1, int c1, int c2, float A[r1][c1], float B[][c2], float C[r1][c2]);
-void transpose(int r1, int c1, float A[r1][c1], float B[c1][r1]);
 
-//Multiplica duas matrizes
-void multiplica_matriz(int r1, int c1, int c2, float A[r1][c1], float B[][c2], float C[r1][c2])
-{
-    for (int i = 0; i < r1; i++)
-    {
-      for (int j = 0; j < c2; j++)
-      {
-         for (int k = 0; k < c1; k++)
-         {
-            C[i][j] += A[i][k] * B[k][j];
-         }
-      }
-   }
-}
-
-//Transpoe matriz
-void transpose(int r1, int c1, float A[r1][c1], float B[c1][r1])
-{
-    for (int m = 0; m < r1; m++)
-    {
-        for (int n = 0; n < c1; n++)
-        {
-            B[n][m] = A[m][n];
-        }
-    }
-}*/
 
 int main()
 {
     /* --- VARIAVEIS ---*/
-    FILE *arq;
+    FILE *arq, *arq2;
 
     arq = fopen("amostras.txt", "r");
 
@@ -45,23 +17,23 @@ int main()
     }
     else
     {
-        printf("O arquivo foi aberto com sucesso!\n");
+        printf("Arquivo de amostras foi aberto com sucesso!\n");
     }
 
     unsigned int iseed;
-    char c, c_aux;
+    char c, c_aux, c1, c1_aux;
     int padrao = 0;
     int lin = 0;
     int col = 0;
     int entradas = 256;
-    int qtd_neuronios = 50;
+    int qtd_neuronios = 100;
     int amostras_por_digito = 5;
     int qtd_digitos = 10;
     int tam_vetor_saida = 10; //10 algarismos
     int amostras = amostras_por_digito * tam_vetor_saida;
     float limiar = 0.0;
-    float alfa = 0.01; //taxa aprendizagem
-    float erro_tolerado = 0.5;
+    float alfa = 0.001; //taxa aprendizagem
+    float erro_tolerado = 0.05;
 
     int ordem[amostras];
     int cont = 0;
@@ -101,7 +73,7 @@ int main()
     float deltinha_in[1][qtd_neuronios];
 
     float entrada_aux[1][entradas];
-    float entrada_aux_2[amostras][1];
+    float entrada_testes[qtd_digitos][entradas];
     float h[tam_vetor_saida][1];
     float target_comp[tam_vetor_saida][1];
     float soma = 0.0;
@@ -152,17 +124,30 @@ int main()
     {
         c = getc(arq);
 
+
         if(c == 'p')
         {
             c_aux = 0;
             lin++;
             col = 0;
+            printf("\n\n\n");
         }
         if(c == '-')
         {
             //entrada[lin][col] = -1.0;
             col++;
             c_aux = 0;
+            printf("#");
+            /*if((col == 15) || (col == 30) || (col == 45) || (col == 60) || (col == 75) || (col == 90)
+               || (col == 105) || (col == 120) || (col == 135) || (col == 150) || (col == 165) || (col == 180)
+               || (col == 195) || (col == 210) || (col == 225) || (col == 240) || (col == 255))
+            {
+                printf("\n");
+            }*/
+            if(col%16 == 0)
+            {
+               printf("\n");
+            }
         }
         else
         {
@@ -177,11 +162,23 @@ int main()
                     entrada[lin][col] = 1.0;
                     col++;
                     c_aux = 0;
+                    printf("-");
+                    /*if((col == 15) || (col == 30) || (col == 45) || (col == 60) || (col == 75) || (col == 90)
+                        || (col == 105) || (col == 120) || (col == 135) || (col == 150) || (col == 165) || (col == 180)
+                        || (col == 195) || (col == 210) || (col == 225) || (col == 240) || (col == 255))
+                    {
+                        printf("\n");
+                    }*/
+                    if(col%16 == 0)
+                    {
+                       printf("\n");
+                    }
                 }
             }
         }
     }
-
+    printf("Arquivo de amostras foi aberto! Pressione qualquer tecla para continuar...\n");
+    getch();
     /* == TESTE ==
     for(int j = 0; j < entradas; j++)
     {
@@ -451,7 +448,7 @@ int main()
         ciclo++;
 
         // Alfa adaptativo.
-       /*if (ciclo>1)
+       if (ciclo>1)
        {
             deltaaux = (erro_total-errotemporario)/erro_total;
             mediadeltaaux = alfaaux*deltaaux + (1-alfaaux)*mediadeltaauxant;
@@ -467,21 +464,106 @@ int main()
 
             mediadeltaauxant = mediadeltaaux;
             errotemporario = erro_total;
-       }*/
+       }
 
 
-        printf("\nCiclo: %d \tAlfa: %f \tErro: %.2f", ciclo, alfa, erro_total);
+        printf("\nCiclo: %d \tTaxa de Aprendizagem: %f \t    Erro: %.2f", ciclo, alfa, erro_total);
         //printf("\ndeltaaux: %f \tmediadeltaauxant: %f", deltaaux, mediadeltaauxant);
     }
-    printf("\n\n\n");
+    printf("\nRede Treinada com Sucesso. Pressione qualquer tecla para continuar...\n\n");
+    getch();
 
     //teste manual
-    letra = 21;
+    arq2 = fopen("testes.txt", "r");
+
+    if (arq2 == NULL)
+    {
+        printf("ERRO! O arquivo não foi aberto!\n");
+    }
+    else
+    {
+        printf("Arquivo de testes aberto com sucesso!\n");
+    }
+
+    for(int i = 0; i < qtd_digitos; i++)
+    {
+        for(int j = 0; j < entradas; j++)
+        {
+            entrada_testes[i][j] = -1.0;
+        }
+    }
+
+    lin = 0;
+
+    while(c1 != EOF)
+    {
+        c1 = getc(arq2);
+
+        if(c1 == 'p')
+        {
+            c1_aux = 0;
+            lin++;
+            col = 0;
+            printf("\n\n\n");
+        }
+        if(c1 == '-')
+        {
+            col++;
+            c1_aux = 0;
+            printf("#");
+            if(col%16 == 0)
+            {
+               printf("\n");
+            }
+        }
+        else
+        {
+            if(c1 == ' ')
+            {
+                c1_aux = 1;
+            }
+            else
+            {
+                if((c1 == '1') && (c1_aux == 1))
+                {
+                    entrada_testes[lin][col] = 1.0;
+                    col++;
+                    c1_aux = 0;
+                    printf("-");
+                    if(col%16 == 0)
+                    {
+                       printf("\n");
+                    }
+                }
+            }
+        }
+    }
+
+    printf("\n====================================================\n");
+    printf("Digite qual algarismo deseja testar (0 a 9)\n");
+    scanf("%i",&letra);
+    printf("\n\n\n");
 
     for(int col = 0; col < entradas; col++)
     {
-        entrada_teste[col] = entrada[letra][col];
+        entrada_teste[col] = entrada_testes[letra][col];
+
+        if(col%16 == 0)
+        {
+           printf("\n");
+        }
+
+        if(entrada_teste[col] == 1.0)
+        {
+            printf("#");
+        }
+        else
+        {
+            printf(" ");
+        }
     }
+
+    printf("\n\n\n");
 
     for (int m = 0; m < tam_vetor_saida; m++)
     {
@@ -504,7 +586,7 @@ int main()
         y[0][m] = tanh(y_inicial[0][m]);
         soma = 0;
 
-        printf("[%.3f]", y[0][m]);
+        printf("[%f]", y[0][m]);
     }
 
     printf("\n\n\n");
@@ -523,6 +605,23 @@ int main()
 
         printf("[%.0f]", y[0][j]);
     }
-///////////////////////////////////////////////////////////////////////////////////////////
+    printf("\n\n\n");
+    if (y[0][0] == 1.0) { printf("0 reconhecido\n"); }
+    if (y[0][1] == 1.0) { printf("1 reconhecido\n"); }
+    if (y[0][2] == 1.0) { printf("2 reconhecido\n"); }
+    if (y[0][3] == 1.0) { printf("3 reconhecido\n"); }
+    if (y[0][4] == 1.0) { printf("4 reconhecido\n"); }
+    if (y[0][5] == 1.0) { printf("5 reconhecido\n"); }
+    if (y[0][6] == 1.0) { printf("6 reconhecido\n"); }
+    if (y[0][7] == 1.0) { printf("7 reconhecido\n"); }
+    if (y[0][8] == 1.0) { printf("8 reconhecido\n"); }
+    if (y[0][9] == 1.0) { printf("9 reconhecido\n"); }
+    if (y[0][0] == y[0][1] == y[0][2] == y[0][3] == y[0][4] == y[0][5] == y[0][6] == y[0][7] == y[0][8] == y[0][9] == -1.0)
+    {
+        printf("Nenhum reconhecido\n");
+    }
+    printf("-=-=-=-=-=-=-=-=-=-=-=-\n");
+    getch();
+
     return 0;
 }
